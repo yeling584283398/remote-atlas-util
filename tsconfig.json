@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "ESNext",
+    "strict": false,
+    "types": [
+      "./types/cc.env",
+      "./types/cc",
+      "node"
+    ],
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "isolatedModules": false,
+    "moduleResolution": "node",
+  }
+}
