@@ -1,16 +1,19 @@
-declare type RemoteAtlasUtilOptions = {
-    texturePath?: string;
-};
-export default class RemoteAtlasUtil {
-    constructor(options?: RemoteAtlasUtilOptions);
-    private texturePath;
+declare type TAtlasUrlInfo = {
+    params: string;
+    paramsWebp: string;
+    sprite: string;
+    spriteWebp: string;
+}[];
+export default class RemoteImageUtil {
+    static instance: RemoteImageUtil;
+    static getInstance(): RemoteImageUtil;
+    constructor();
     private atlasUrlMap;
     private imageUrlMap;
-    private imageUrlCache;
     private uuidMap;
-    setRemoteUrl(name: string, atlasUrl: string, imageUrl: string): void;
-    setSingleImageUrl(imageRelativePath: string, url: string): void;
-    private hackDownloader;
+    private isSupportWebp;
+    setRemoteUrl(name: string, urlInfos: TAtlasUrlInfo, isUseWebp?: boolean): void;
+    setSingleImageUrl(name: string, url: string): void;
     private hackPipeline;
 }
 export {};
