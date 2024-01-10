@@ -387,5 +387,3 @@ class RemoteImagePlugin {
 
 exports.RemoteImagePlugin = RemoteImagePlugin;
 exports.createSpriteConfig = createSpriteConfig;
-exports.getUuidMap = getUuidMap;
-exports.updateAllPack = updateAllPack;

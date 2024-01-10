@@ -1,3 +1,28 @@
+interface IBundleConfig {
+    name: string;
+    texturePath: string[];
+}
+interface IRemoteImagePluginOptions {
+    /**
+     * the root path of project.
+     */
+    rootPath: string;
+    /**
+     * the bundles of images that need to be replaced by admin
+     * @default: [{ name: 'resources', texturePath: ['assets/texture'] }]
+     */
+    bundles?: IBundleConfig[];
+    /**
+     * the folders name don't want replace remote atlas.
+     * @default: []
+     */
+    excludes: [];
+    /**
+     * Cocos Editor build path.
+     * @default: 'build/web-mobile'
+     */
+    buildPath: string;
+}
 export declare class RemoteImagePlugin {
     private options;
     private promiseCache;
@@ -6,3 +31,4 @@ export declare class RemoteImagePlugin {
     generateUuidMap(): Promise<IUuidMap>;
     setUuidMap(compiler: any): void;
 }
+export {};
