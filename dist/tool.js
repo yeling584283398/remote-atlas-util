@@ -370,7 +370,6 @@ class RemoteImagePlugin {
         });
     }
     setUuidMap(compiler) {
-        this.generateUuidMap();
         compiler.hooks.compilation.tap('RemoteImagePlugin', (compilation) => {
             HtmlWebpackPlugin__default["default"].getHooks(compilation).beforeEmit.tapAsync('RemoteImagePlugin', (htmlPluginData, cb) => {
                 this.generateUuidMap().then((uuidMap) => {
@@ -379,6 +378,8 @@ class RemoteImagePlugin {
                     const insertIndex = html.indexOf('<body>') + 6;
                     htmlPluginData.html = html.slice(0, insertIndex) + uuidMapScript + html.slice(insertIndex);
                     cb(null, htmlPluginData);
+                }).catch((e) => {
+                    cb(e);
                 });
             });
         });

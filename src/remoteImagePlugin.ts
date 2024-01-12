@@ -70,7 +70,6 @@ export class RemoteImagePlugin {
   }
 
   setUuidMap(compiler) {
-    this.generateUuidMap();
     compiler.hooks.compilation.tap('RemoteImagePlugin', (compilation) => {
       HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tapAsync(
         'RemoteImagePlugin',
@@ -81,6 +80,8 @@ export class RemoteImagePlugin {
             const insertIndex = html.indexOf('<body>') + 6;
             htmlPluginData.html = html.slice(0, insertIndex) + uuidMapScript + html.slice(insertIndex);
             cb(null, htmlPluginData);
+          }).catch((e) => {
+            cb(e);
           });
         }
       );
