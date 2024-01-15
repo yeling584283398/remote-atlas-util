@@ -24,6 +24,9 @@ interface IRemoteImagePluginOptions {
     buildPath: string;
 }
 export declare class RemoteImagePlugin {
+    static getUuidMap(): Promise<IUuidMap>;
+    private static getUuidMapResolve;
+    private static uuidMap;
     private options;
     private promiseCache;
     constructor(options: IRemoteImagePluginOptions);

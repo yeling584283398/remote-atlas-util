@@ -349,6 +349,13 @@ class RemoteImagePlugin {
             throw new Error('[RemoteImagePlugin] params: projectRootPath can not empty!');
         this.options = Object.assign(Object.assign({}, defaultOptions), options);
     }
+    static getUuidMap() {
+        if (this.uuidMap)
+            return Promise.resolve(this.uuidMap);
+        return new Promise(resolve => {
+            this.getUuidMapResolve = (uuidMap) => resolve(uuidMap);
+        });
+    }
     apply(compiler) {
         this.setUuidMap(compiler);
     }
@@ -365,12 +372,17 @@ class RemoteImagePlugin {
                 promises.push(updateAllPack(bundle.name, textureAbsPath, excludes, buildPath));
             });
         });
-        this.promiseCache = Promise.all(promises).then(() => {
-            return getUuidMap();
+        return this.promiseCache = Promise.all(promises).then(() => {
+            const uuidMap = RemoteImagePlugin.uuidMap = getUuidMap();
+            RemoteImagePlugin.getUuidMapResolve && RemoteImagePlugin.getUuidMapResolve(uuidMap);
+            return uuidMap;
         });
     }
     setUuidMap(compiler) {
         compiler.hooks.compilation.tap('RemoteImagePlugin', (compilation) => {
+            this.generateUuidMap().catch(() => {
+                this.promiseCache = null;
+            });
             HtmlWebpackPlugin__default["default"].getHooks(compilation).beforeEmit.tapAsync('RemoteImagePlugin', (htmlPluginData, cb) => {
                 this.generateUuidMap().then((uuidMap) => {
                     const uuidMapScript = `<script>window.uuidMap=${JSON.stringify(uuidMap)}</script>`;

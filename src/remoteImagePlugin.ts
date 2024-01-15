@@ -27,6 +27,7 @@ interface IRemoteImagePluginOptions {
    * @default: 'build/web-mobile'
    */
   buildPath: string;
+  
 }
 
 const defaultOptions = {
@@ -42,6 +43,16 @@ const defaultOptions = {
 };
 
 export class RemoteImagePlugin {
+  static getUuidMap(): Promise<IUuidMap> {
+    if (this.uuidMap) return Promise.resolve(this.uuidMap);
+    return new Promise<IUuidMap>(resolve => {
+      this.getUuidMapResolve = (uuidMap) => resolve(uuidMap);
+    })
+  }
+
+  private static getUuidMapResolve: (uuidMap: IUuidMap) => void;
+  private static uuidMap: IUuidMap;
+
   private options: IRemoteImagePluginOptions;
   private promiseCache: Promise<IUuidMap>;
   constructor(options: IRemoteImagePluginOptions) {
@@ -64,13 +75,18 @@ export class RemoteImagePlugin {
         promises.push(updateAllPack(bundle.name, textureAbsPath, excludes, buildPath))
       })
     })
-    this.promiseCache = Promise.all(promises).then(() => {
-      return getUuidMap();
+    return this.promiseCache = Promise.all(promises).then(() => {
+      const uuidMap = RemoteImagePlugin.uuidMap = getUuidMap();
+      RemoteImagePlugin.getUuidMapResolve && RemoteImagePlugin.getUuidMapResolve(uuidMap)
+      return uuidMap;
     });
   }
 
   setUuidMap(compiler) {
     compiler.hooks.compilation.tap('RemoteImagePlugin', (compilation) => {
+      this.generateUuidMap().catch(() => {
+        this.promiseCache = null;
+      })
       HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tapAsync(
         'RemoteImagePlugin',
         (htmlPluginData, cb) => {
