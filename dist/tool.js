@@ -122,7 +122,7 @@ function getPackInfo(name, bundleName, texturePath, buildPath) {
                 images.push({
                     uuid: imageMetaContent.uuid,
                     name: fileName.split('.')[0],
-                    index: config.uuids.indexOf(imageMetaContent.uuid + '@f9941') + '',
+                    index: config.uuids.indexOf(imageMetaContent.uuid + '@f9941'),
                 });
             }
         });
