@@ -1,7 +1,3 @@
-interface IBundleConfig {
-    name: string;
-    texturePath: string[];
-}
 interface ICreateSpriteConfigOptions {
     /**
      * the root path of project.
@@ -22,14 +18,6 @@ interface ICreateSpriteConfigOptions {
      * @default: []
      */
     excludes?: string[];
-    /**
-     * the image will be removed when it is not used in the prefab.
-     * @default: false
-     */
-    removeUselessImageConfig?: {
-        bundles: IBundleConfig[];
-        buildPath: string;
-    } | false;
 }
 export declare function createSpriteConfig(options: ICreateSpriteConfigOptions): Promise<void>;
 export {};

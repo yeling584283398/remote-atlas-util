@@ -14,7 +14,7 @@ export default [
         ]
     },
     {
-        input: 'src/tool.ts',
+        input: 'src/spriteConfig.ts',
         output: [
             { format: 'cjs', file: 'dist/tool.js' }
         ],

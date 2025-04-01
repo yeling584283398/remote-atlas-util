@@ -1,11 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { getPackInfo } from './getPackInfo';
-
-interface IBundleConfig {
-  name: string;
-  texturePath: string[];
-}
 
 interface ICreateSpriteConfigOptions {
   /** 
@@ -27,14 +21,6 @@ interface ICreateSpriteConfigOptions {
    * @default: []
    */
   excludes?: string[];
-  /** 
-   * the image will be removed when it is not used in the prefab.
-   * @default: false
-   */
-  removeUselessImageConfig?: {
-    bundles: IBundleConfig[];
-    buildPath: string;
-  } | false;
 }
 
 let excludes = [];
@@ -64,30 +50,11 @@ function setSubKey(texturePath: string) {
   });
 }
 
-async function removeUselessImage(texturePath: string, bundles: IBundleConfig[], buildPath: string) {
-  const promises = bundles.map((bundle) => {
-    if (bundle.texturePath.includes(texturePath)) {
-      const absPath = path.resolve(rootPath, texturePath);
-      const promises = getAllPackDir(absPath).map((dir: string) => {
-        return getPackInfo(dir, bundle.name, absPath, buildPath).then(((info) => {
-          if (packSubKeys[dir]) throw new Error(`atlas repeat: ${texturePath}/${dir}}`);
-          packSubKeys[dir] = Object.keys(info.imageMap);
-        }));
-      });
-      return Promise.all(promises);
-    }
-  });
-  await Promise.all(promises);
-}
 
 const defaultOptions = {
   texturePath: ['assets/texture'],
   spriteConfigPath: 'config/sprite.config.json',
   excludes: [],
-  removeUselessImageConfig: {
-    bundles: [{ name: 'resources', texturePath: ['assets/texture'] }],
-    buildPath: 'build/web-mobile',
-  },
 };
 
 export async function createSpriteConfig(options: ICreateSpriteConfigOptions) {
@@ -100,12 +67,7 @@ export async function createSpriteConfig(options: ICreateSpriteConfigOptions) {
   excludes = options.excludes;
   for (let i = 0; i < options.texturePath.length; i++) {
     const texturePath = options.texturePath[i];
-    if (options.removeUselessImageConfig) {
-      const config = options.removeUselessImageConfig;
-      await removeUselessImage(texturePath, config.bundles, config.buildPath);
-    } else {
-      setSubKey(path.resolve(rootPath, texturePath));
-    }
+    setSubKey(path.resolve(rootPath, texturePath));
   }
   const spriteConfig = {
     engine: 'egret',

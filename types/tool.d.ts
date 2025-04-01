@@ -4,13 +4,7 @@ interface IPackInfo {
 }
 
 interface IUuidMap {
-  atlas: Record<
-    string,
-    {
-      uuid: string;
-      imageMap: Record<string, string>;
-    }
-  >;
+  atlas: Record<string, string>;
   single: Record<string, string>;
 }
 
