@@ -1,6 +1,6 @@
 {
   "name": "@game-engine/cocos-remote-atlas-util",
-  "version": "2.2.0",
+  "version": "2.2.1-alpha.2",
   "description": "a tool to replace cocos remote atlas",
   "main": "dist/index.mjs",
   "files": [

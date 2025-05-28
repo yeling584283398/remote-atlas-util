@@ -1,4 +1,4 @@
-import { Asset, assetManager, Rect, resources, Size, SpriteFrame, sys, Vec2 } from 'cc';
+import { assetManager, Rect, Size, sys, Vec2 } from 'cc';
 import { BUILD } from 'cc/env';
 import { RemoteAtlasAsset } from './RemoteAtlasAsset';
 
@@ -19,6 +19,7 @@ export default class RemoteImageUtil {
   }
   constructor() {
     if (!BUILD) return;
+    this.mockRemoteAtlasAsset();
     this.hackPipeline();
   }
 
@@ -41,6 +42,8 @@ export default class RemoteImageUtil {
     this.uuidMap[packUUid] = name;
     this.imageUrlMap[packUUid] = isUseWebp ? urlInfo.spriteWebp : urlInfo.sprite;
     this.atlasUrlMap[name + '.json'] = isUseWebp ? urlInfo.paramsWebp : urlInfo.params;
+    // 有设置远程图片了就可以删除mock的资源了
+    assetManager.assets.remove(`${name}.json`);
   }
 
   setSingleImageUrl(name: string, url: string) {
@@ -50,11 +53,40 @@ export default class RemoteImageUtil {
     this.imageUrlMap[uuid] = url;
   }
 
+  checkAllImageSetUrl() {
+    const atlas = [];
+    Object.keys(window.uuidMap.atlas).forEach((name: string) => {
+      if (!this.atlasUrlMap[name + '.json']) {
+        atlas.push(name);
+      }
+    });
+    const single = [];
+    Object.keys(window.uuidMap.single).forEach((name: string) => {
+      if (!this.imageUrlMap[window.uuidMap.single[name]]) {
+        single.push(name);
+      }
+    });
+    return {
+      atlas,
+      single,
+    };
+  }
+
+  private mockRemoteAtlasAsset() {
+    // 先把所有的 atlas 资源注册到 assetManager 中，避免admin图片没配置时仍然去请求json文件导致找不到
+    Object.keys(window.uuidMap.atlas).forEach((name: string) => {
+      const uuid = window.uuidMap.atlas[name];
+      if (!uuid) return;
+      const asset = new RemoteAtlasAsset();
+      assetManager.assets.add(`${name}.json`, asset);
+    });
+  }
+
   private hackPipeline() {
     assetManager.transformPipeline.append((task) => {
       const input = (task.output = task.input);
       input.forEach((item) => {
-        if (item.uuid.indexOf('.json') >= 0) {
+        if (item.uuid.indexOf('.json') >= 0 && this.atlasUrlMap[item.uuid]) {
           item.url = this.atlasUrlMap[item.uuid];
           item.ext = '.sa';
           item.isNative = true;

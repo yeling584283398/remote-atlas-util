@@ -9,9 +9,18 @@ class RemoteAtlasAsset extends Asset {
 }
 Object.defineProperty(SpriteFrame.prototype, '__remoteAtlas', {
     set: function (value) {
-        Object.keys(value.frameMap[this.name]).forEach((key) => {
-            this[key] = value.frameMap[this.name][key];
-        });
+        if (!(value instanceof RemoteAtlasAsset)) {
+            console.warn(`${this.name} 没有找到admin合图资源，将使用本地图`);
+            return;
+        }
+        if (value.frameMap[this.name]) {
+            Object.keys(value.frameMap[this.name]).forEach((key) => {
+                this[key] = value.frameMap[this.name][key];
+            });
+        }
+        else {
+            console.error(`缺少了admin图片: ${this.name}，请检查配置！`);
+        }
     },
 });
 
@@ -23,6 +32,7 @@ class RemoteImageUtil {
         this.isSupportWebp = sys.hasFeature(sys.Feature.WEBP);
         if (!BUILD)
             return;
+        this.mockRemoteAtlasAsset();
         this.hackPipeline();
     }
     static getInstance() {
@@ -46,6 +56,8 @@ class RemoteImageUtil {
         this.uuidMap[packUUid] = name;
         this.imageUrlMap[packUUid] = isUseWebp ? urlInfo.spriteWebp : urlInfo.sprite;
         this.atlasUrlMap[name + '.json'] = isUseWebp ? urlInfo.paramsWebp : urlInfo.params;
+        // 有设置远程图片了就可以删除mock的资源了
+        assetManager.assets.remove(`${name}.json`);
     }
     setSingleImageUrl(name, url) {
         if (!BUILD)
@@ -55,11 +67,39 @@ class RemoteImageUtil {
             return;
         this.imageUrlMap[uuid] = url;
     }
+    checkAllImageSetUrl() {
+        const atlas = [];
+        Object.keys(window.uuidMap.atlas).forEach((name) => {
+            if (!this.atlasUrlMap[name + '.json']) {
+                atlas.push(name);
+            }
+        });
+        const single = [];
+        Object.keys(window.uuidMap.single).forEach((name) => {
+            if (!this.imageUrlMap[window.uuidMap.single[name]]) {
+                single.push(name);
+            }
+        });
+        return {
+            atlas,
+            single,
+        };
+    }
+    mockRemoteAtlasAsset() {
+        // 先把所有的 atlas 资源注册到 assetManager 中，避免admin图片没配置时仍然去请求json文件导致找不到
+        Object.keys(window.uuidMap.atlas).forEach((name) => {
+            const uuid = window.uuidMap.atlas[name];
+            if (!uuid)
+                return;
+            const asset = new RemoteAtlasAsset();
+            assetManager.assets.add(`${name}.json`, asset);
+        });
+    }
     hackPipeline() {
         assetManager.transformPipeline.append((task) => {
             const input = (task.output = task.input);
             input.forEach((item) => {
-                if (item.uuid.indexOf('.json') >= 0) {
+                if (item.uuid.indexOf('.json') >= 0 && this.atlasUrlMap[item.uuid]) {
                     item.url = this.atlasUrlMap[item.uuid];
                     item.ext = '.sa';
                     item.isNative = true;

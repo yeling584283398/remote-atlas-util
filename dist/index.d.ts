@@ -14,6 +14,11 @@ export default class RemoteImageUtil {
     private isSupportWebp;
     setRemoteUrl(name: string, urlInfos: TAtlasUrlInfo, isUseWebp?: boolean): void;
     setSingleImageUrl(name: string, url: string): void;
+    checkAllImageSetUrl(): {
+        atlas: any[];
+        single: any[];
+    };
+    private mockRemoteAtlasAsset;
     private hackPipeline;
 }
 export {};
