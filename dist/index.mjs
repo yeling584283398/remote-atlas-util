@@ -68,6 +68,8 @@ class RemoteImageUtil {
         this.imageUrlMap[uuid] = url;
     }
     checkAllImageSetUrl() {
+        if (!BUILD)
+            return;
         const atlas = [];
         Object.keys(window.uuidMap.atlas).forEach((name) => {
             if (!this.atlasUrlMap[name + '.json']) {
@@ -124,6 +126,7 @@ class RemoteImageUtil {
                     rect,
                     offset,
                     originalSize,
+                    rotated: info.rotated || false,
                 };
             });
             onComplete(null, asset);

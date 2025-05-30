@@ -13,11 +13,13 @@ npm install --save @game-engine/cocos-remote-atlas-util
 ```bash
 import RemoteAtlasUtil from '@game-engine/cocos-remote-atlas-util';
 
-const remoteAtlasUtil = new RemoteAtlasUtil();
 // set remote atlas image
-remoteAtlasUtil.setRemoteUrl(atlasDirName, atlasJsonRemoteUrl, atlasImageRemoteUrl);
+RemoteAtlasUtil.getInstance().setRemoteUrl(atlasDirName, atlasJsonRemoteUrl, atlasImageRemoteUrl);
 // set single remote image
-remoteAtlasUtil.setSingleImageUrl(imageRelativePath, remoteUrl);
+RemoteAtlasUtil.getInstance().setSingleImageUrl(imageRelativePath, remoteUrl);
+// check if all admin images have url set.
+const { atlas, single } = RemoteAtlasUtil.getInstance().checkAllImageSetUrl();
+console.error(`admin images url have not been set: atlas=${atlas.join(',')}; single=${single.join(',')}`)
 ```
 
 ### Sprite config tool
