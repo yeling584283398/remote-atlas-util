@@ -91,7 +91,8 @@ function createSpriteConfig(options) {
             spriteConfig: {},
         };
         Object.keys(packSubKeys).forEach((name) => {
-            spriteConfig.spriteConfig[name] = {
+            const atlasName = name.length === 17 ? (name + '_prolong') : name;
+            spriteConfig.spriteConfig[atlasName] = {
                 keys: packSubKeys[name],
             };
         });
